@@ -203,16 +203,16 @@ class KamisadoEnv(gym.Env):
         return (valid_actions == target).all(1).any(), tower, target
 
     def move_tower(self, tower: int, target: np.ndarray):
-        """Move a tower to a relative target."""
         board = self.board
         coords = self.get_tower_coords(tower)
-        board[*coords] = 0
-        board[*coords + target] = tower
+        board[coords[0], coords[1]] = 0
+        new_coords = coords + target
+        board[new_coords[0], new_coords[1]] = tower
         self.board = board
 
     def color_at_coords(self, coords: list[int] | np.ndarray):
         """Get the board color at specified coordinates."""
-        return self.board_colors[*coords]
+        return self.board_colors[coords[0], coords[1]]
 
     @property
     def is_won(self) -> bool:
