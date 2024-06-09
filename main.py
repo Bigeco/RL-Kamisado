@@ -38,6 +38,5 @@ def play_dqn():
 
 if __name__ == "__main__":
     # sample_play()
-    train_sarsa_agent()
-    #play_dqn()
+    play_dqn()
 
