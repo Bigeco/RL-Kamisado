@@ -1,13 +1,11 @@
 import os
-
 import random
 from collections import deque
 
 import numpy as np
+from keras import layers, models, optimizers
 from tensorflow import keras
-from keras import models
-from keras import layers
-from keras import optimizers
+
 
 class BaseAgent:
     def __init__(self, state_size, action_size):
@@ -89,11 +87,14 @@ class DQNAgent(BaseAgent):
         for state, action, reward, next_state, done in minibatch:
             target = reward
             if not done:
+                next_state = np.reshape(next_state, (1, -1))
                 target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
             target_f = self.model.predict(state)
             target_f[0][action] = target
             state = np.expand_dims(state, axis=0)
+            state = np.reshape(state, (1, -1))
             target_f = np.expand_dims(target_f, axis=0)
+            target_f = np.reshape(target_f, (1, -1))
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.epsilon > self.exploration_min:
             self.epsilon *= self.exploration_decay
@@ -101,7 +102,6 @@ class DQNAgent(BaseAgent):
     def load(self, name):
         self.model.load_weights(name)
 
-    def save(self, name):
         self.model.save_weights(name)
 
 
