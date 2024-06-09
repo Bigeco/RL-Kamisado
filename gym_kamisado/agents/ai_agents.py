@@ -1,25 +1,13 @@
+import os
+
 import random
 from collections import deque
 
 import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
-
-#define Network Model(with 3 fully-connected layer)
-
-class DQN(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super(DQN, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, output_dim)
-
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+from tensorflow import keras
+from keras import models
+from keras import layers
+from keras import optimizers
 
 class BaseAgent:
     def __init__(self, state_size, action_size):
@@ -54,42 +42,57 @@ class BaseAgent:
     def save(self, name):
         raise NotImplementedError
 
+
 class DQNAgent(BaseAgent):
     def __init__(self, state_size, action_size):
         super().__init__(state_size, action_size)
-        self.model = DQN(state_size, action_size)
-        self.target_model = DQN(state_size, action_size)
-        self.update_target_model()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.weight_backup = "kamisado_DQN_weight.h5"
+        self.exploration_rate = 1.0
+        self.exploration_min = 0.01
+        self.exploration_decay = 0.995
+        self.model = self._build_model()
 
-    def update_target_model(self):
-        self.target_model.load_state_dict(self.model.state_dict())
+    def _build_model(self, use_previous_saved_weight=False): 
+        model = models.Sequential()
+        model.add(layers.Dense(128, input_dim=self.state_size, activation='relu'))
+        model.add(layers.Dense(128, activation='relu'))
+        model.add(layers.Dense(self.action_size, activation='linear'))
+        model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=self.learning_rate))
+        if os.path.isfile(self.weight_backup) and use_previous_saved_weight:
+            model.load_weights(self.weight_backup)
+            self.exploration_rate = self.exploration_min
+        return model
 
-    def select_action(self, state):
-        state = torch.FloatTensor(state).unsqueeze(0)
-        act_values = self.model(state)
-        return torch.argmax(act_values[0]).item()
+    def save_model(self):
+        self.model.save('gym_kamisado/model/' + self.weight_backup)
 
-    def learn(self, state, action, reward, next_state, done):
-        target = reward
-        if not done:
-            next_state = torch.FloatTensor(next_state).unsqueeze(0)
-            target = (reward + self.gamma *
-                      torch.max(self.target_model(next_state)[0]).item())
-        target_f = self.model(torch.FloatTensor(state).unsqueeze(0)).detach().numpy()
-        target_f[0][action] = target
-        target_f = torch.FloatTensor(target_f)
-        self.optimizer.zero_grad()
-        outputs = self.model(torch.FloatTensor(state).unsqueeze(0))
-        loss = nn.MSELoss()(outputs, target_f)
-        loss.backward()
-        self.optimizer.step()
+    def act(self, state):
+        if np.random.rand() <= self.exploration_rate:
+            return random.randrange(self.action_size)
+        act_values = self.model.predict(state)
+        return np.argmax(act_values[0])
+
+    def replay(self, batch_size):
+        if len(self.memory) < batch_size:
+            return
+        
+        minibatch = random.sample(self.memory, batch_size)
+        for state, action, reward, next_state, done in minibatch:
+            target = reward
+            if not done:
+              target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
+            target_f = self.model.predict(state)
+            target_f[0][action] = target
+            self.model.fit(state, target_f, epochs=1, verbose=0)
+        if self.exploration_rate > self.exploration_min:
+            self.exploration_rate *= self.exploration_decay
 
     def load(self, name):
-        self.model.load_state_dict(torch.load(name))
+        self.model.load_weights(name)
 
     def save(self, name):
-        torch.save(self.model.state_dict(), name)
+        self.model.save_weights(name)
+
 
 class QLearningAgent(BaseAgent):
     def __init__(self, state_size, action_size):
@@ -109,6 +112,7 @@ class QLearningAgent(BaseAgent):
 
     def save(self, name):
         np.save(name, self.q_table)
+
 
 class SARSAAgent(BaseAgent):
     def __init__(self, state_size, action_size):

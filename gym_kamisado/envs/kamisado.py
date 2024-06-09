@@ -84,7 +84,7 @@ class KamisadoEnv(gym.Env):
         self.font = None
 
     def _get_obs(self):
-        return np.append(self.board.flatten() + 8, self.current_tower if self.current_tower else 0)
+        return np.append(self.board.flatten() + 8, self.current_tower if self.current_tower else 0) # arr, values, axis=None
 
     def _get_info(self):
         return {"current_player": self.current_player, "board": self.board}
@@ -356,3 +356,27 @@ class KamisadoEnv(gym.Env):
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
+
+    def possible_moves(self, tower: int) -> list:
+        """
+        Calculate all possible valid moves for a given tower.
+
+        Args:
+            tower (int): The tower for which to calculate possible moves. 
+                        Positive for current player, negative for opponent.
+
+        Returns:
+            list: A list of tuples, where each tuple represents a valid move
+                as (new_row, new_col).
+        """
+        current_coords = self.get_tower_coords(tower)
+        valid_moves = self.valid_targets(tower)  # This gets all relative actions that are valid
+        possible_positions = []
+
+        # Calculate absolute positions from relative moves
+        for move in valid_moves:
+            target_position = current_coords + move
+            if (0 <= target_position[0] < 8) and (0 <= target_position[1] < 8):  # Ensure move is within bounds
+                possible_positions.append((target_position[0], target_position[1]))
+        
+        return possible_positions
