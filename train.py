@@ -4,7 +4,7 @@ import gymnasium as gym
 import numpy as np
 
 import gym_kamisado
-from gym_kamisado.agents.ai_agents import DQNAgent, SARSAAgent
+from gym_kamisado.agents.ai_agents import DQNAgent, QLearningAgent, SARSAAgent
 
 # from collections import deque
 
@@ -42,6 +42,34 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
 
     dqn_agent.save_model()  
 
+def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, discount_factor=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
+    env = gym.make('Kamisado-v0', render_mode="rgb_array")
+    state_size = 8 * 8 + 1
+    action_size = 22
+    qlearning_agent = QLearningAgent(state_size, action_size)
+    
+    for e in range(episodes):
+        state = env.reset()
+        done = False
+        total_reward = 0
+
+        while not done:
+            state = state[0]  # Convert environment state to scalar value
+            action = qlearning_agent.select_action(state)
+            tower = env.get_current_tower()
+            target = action  # Use scalar value directly
+
+            next_state, reward, done, _, info = env.step(np.array([tower, target]))  # Pass tower and target as tuple
+            qlearning_agent.learn(state, action, reward, next_state, done)
+            state = next_state
+            total_reward += reward
+
+        # Decay epsilon
+        qlearning_agent.epsilon = max(epsilon_min, qlearning_agent.epsilon * epsilon_decay)
+        
+        print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
+
+    env.close()
 
 def train_sarsa_agent(episodes=100):
     env = gym.make('Kamisado-v0', render_mode='rgb_array')
