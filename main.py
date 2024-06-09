@@ -37,6 +37,7 @@ def play_dqn():
         print("Reward: ", reward)
 
 if __name__ == "__main__":
-    play_dqn()
+    #play_dqn()
     #sample_play()
-    
+    #train_qlearning_agent()
+    train_dqn_agent()

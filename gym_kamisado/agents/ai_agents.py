@@ -101,8 +101,8 @@ class DQNAgent(BaseAgent):
 
     def save(self, name):
         self.model.save_weights(name)
-        with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'w') as file:
-            file.write(str(self.epsilon))
+        with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'a') as file:
+            file.write(str(self.epsilon) + '\n')
 
 
 class QLearningAgent(BaseAgent):
