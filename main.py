@@ -3,6 +3,7 @@ import numpy as np
 
 from train import train_dqn_agent
 
+
 def sample_play():
     env = gym.make('Kamisado-v0', render_mode="human")
     obs, info = env.reset()

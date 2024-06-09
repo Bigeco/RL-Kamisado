@@ -1,11 +1,14 @@
 import random
-import numpy as np
-# from collections import deque
 
 import gymnasium as gym
-import gym_kamisado
+import numpy as np
 
+import gym_kamisado
 from gym_kamisado.agents.ai_agents import DQNAgent
+
+# from collections import deque
+
+
 
 def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_factor=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
     env = gym.make('Kamisado-v0', render_mode="rgb_array")
