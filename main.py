@@ -1,13 +1,13 @@
 import gymnasium as gym
 import numpy as np
 
-from train import train_dqn_agent
-from gym_kamisado.agents.ai_agents import DQNAgent
+from train import train_dqn_agent, train_sarsa_agent
+from gym_kamisado.agents.ai_agents import DQNAgent, SARSAAgent
 
 state_size = 8 * 8 + 1  # env.observation_space.shape[0]
 action_size = 22  # 
 dqn_agent = DQNAgent(state_size, action_size)
-dqn_model = dqn_agent.load(name='gym_kamisado/agents/model/kamisado_DQN_weight.h5')
+#dqn_model = dqn_agent.load(name='gym_kamisado/agents/model/kamisado_DQN_weight.h5')
 
 def sample_play():
     env = gym.make('Kamisado-v0', render_mode="human")
@@ -33,5 +33,6 @@ def play_dqn():
 
 if __name__ == "__main__":
     # sample_play()
-    play_dqn()
+    train_sarsa_agent()
+    #play_dqn()
 
