@@ -27,14 +27,19 @@ class BaseAgent:
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
         return self.select_action(state)
-
+    
     def replay(self, batch_size):
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
-            self.learn(state, action, reward, next_state, done)
+            target = reward
+            if not done:
+                target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
+            target_f = self.model.predict(state)
+            target_f[0][action] = target
+            state = np.expand_dims(state, axis=0)
+            target_f = np.expand_dims(target_f, axis=0)
+            self.model.fit(state, target_f, epochs=1, verbose=0)
 
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
 
     def load(self, name):
         raise NotImplementedError
@@ -83,6 +88,8 @@ class DQNAgent(BaseAgent):
               target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
             target_f = self.model.predict(state)
             target_f[0][action] = target
+            state = np.expand_dims(state, axis=0)
+            target_f = np.expand_dims(target_f, axis=0)
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.exploration_rate > self.exploration_min:
             self.exploration_rate *= self.exploration_decay
