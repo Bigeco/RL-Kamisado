@@ -52,30 +52,34 @@ class DQNAgent(BaseAgent):
     def __init__(self, state_size, action_size):
         super().__init__(state_size, action_size)
         self.weight_backup = "kamisado_DQN_weight.h5"
-        self.exploration_rate = 1.0
+        self.epsilon = 1.0
         self.exploration_min = 0.01
         self.exploration_decay = 0.995
         self.model = self._build_model()
 
     def _build_model(self, use_previous_saved_weight=False): 
         model = models.Sequential()
-        model.add(layers.Dense(128, input_dim=self.state_size, activation='relu'))
-        model.add(layers.Dense(128, activation='relu'))
-        model.add(layers.Dense(self.action_size, activation='linear'))
-        model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=self.learning_rate))
+        model.add(layers.Dense(128, activation='relu', input_dim=self.state_size))
+        model.add(layers.Dense( 64, activation='relu'))
+        model.add(layers.Dense(self.action_size))
+        model.compile(loss='mse', 
+                      optimizer=optimizers.Adam(learning_rate=self.learning_rate))
         if os.path.isfile(self.weight_backup) and use_previous_saved_weight:
             model.load_weights(self.weight_backup)
-            self.exploration_rate = self.exploration_min
+            self.epsilon  = self.exploration_min
+        # model.summary()
         return model
 
     def save_model(self):
         self.model.save('gym_kamisado/model/' + self.weight_backup)
 
     def act(self, state):
-        if np.random.rand() <= self.exploration_rate:
-            return random.randrange(self.action_size)
-        act_values = self.model.predict(state)
-        return np.argmax(act_values[0])
+        value_function = self.model.predict(state)
+        if np.random.rand() > self.epsilon:
+            action = np.argmax(value_function)
+        else:
+            action = np.random.choice(self.action_size)
+        return action
 
     def replay(self, batch_size):
         if len(self.memory) < batch_size:
@@ -85,14 +89,14 @@ class DQNAgent(BaseAgent):
         for state, action, reward, next_state, done in minibatch:
             target = reward
             if not done:
-              target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
+                target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
             target_f = self.model.predict(state)
             target_f[0][action] = target
             state = np.expand_dims(state, axis=0)
             target_f = np.expand_dims(target_f, axis=0)
             self.model.fit(state, target_f, epochs=1, verbose=0)
-        if self.exploration_rate > self.exploration_min:
-            self.exploration_rate *= self.exploration_decay
+        if self.epsilon > self.exploration_min:
+            self.epsilon *= self.exploration_decay
 
     def load(self, name):
         self.model.load_weights(name)

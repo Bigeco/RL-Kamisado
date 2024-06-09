@@ -454,3 +454,6 @@ class KamisadoEnv(gym.Env):
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
+    
+    def get_current_tower(self):
+        return self.GAMESTATE.current_player

@@ -16,5 +16,5 @@ def sample_play():
     print("Done")
 
 if __name__ == "__main__":
-    # train_dqn_agent()
-    sample_play()
+    train_dqn_agent()
+    # sample_play()
