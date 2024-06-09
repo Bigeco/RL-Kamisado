@@ -39,36 +39,28 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
     -> (dictionary) 'current_player' and 'board'
     """
 
-    episodes = 1
+    episodes = 10
 
     for e in range(episodes):
         state, info = env.reset()
         done = False
 
         while not done:
+            # tower - 1~8 값 가능 / target - 0~22 값 가능
             action = dqn_agent.act(state)
-            tower = info['current_player'] * 8 + (action // 8)
+            # tower = info['current_player'] * 8 + (action // 8)
+            tower = 2      # 아무렇게나 설정함. dqn_agnet가 이거 값을 리턴해야함.
+            target = 10    # 아무렇게나 설정함. dqn_agnet가 이거 값을 리턴해야함.
             print(f"Current player: {info['current_player']}, Action: {action}, Tower: {tower}")
             print(f"Board state:\n{info['board']}")
-            valid_moves = env.unwrapped.possible_moves(tower)
-            print(f"Valid moves for tower {tower}: {valid_moves}")
 
-            if valid_moves:
-                next_pos = random.choice(valid_moves)
-                print(f"Chosen next position: {next_pos}")
-                try:
-                    target_action = np.array([tower, np.where((env.unwrapped.relative_actions == (next_pos - env.unwrapped.get_tower_coords(tower))).all(axis=1))[0][0]])
-                except ValueError as ve:
-                    print(f"Error in getting tower coordinates: {ve}")
-                    break
-                next_state, reward, done, _, info = env.step(target_action)
-                dqn_agent.remember(state, action, reward, next_state, done)
-                state = next_state
+            next_state, reward, _, done, info = env.step(np.array[tower, target])
+            dqn_agent.remember(state, action, reward, next_state, done)
+            state = next_state
 
             if len(dqn_agent.memory) > batch_size:
                 dqn_agent.replay(batch_size)
-                # break
+
             done = True
             print(f"episode: {e+1}/{episodes}, score: {reward}, epsilon: {dqn_agent.epsilon}")
-
     

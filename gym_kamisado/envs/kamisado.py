@@ -234,7 +234,7 @@ class GameState:
         valid_actions = self.valid_targets(tower) 
 
         print("Action:", action)
-        print("Valid actions:", valid_actions)
+        print("Valid actions: \n", valid_actions)
         print("Target:", target)
         return (valid_actions == target).all(1).any(), tower, target
 
@@ -347,6 +347,7 @@ class KamisadoEnv(gym.Env):
 
         # move tower
         self.GAMESTATE.move_tower(tower, target)
+        print("Changed board: \n", self.GAMESTATE._board)
 
         # set next tower and player
         self.GAMESTATE.current_tower = self.GAMESTATE.color_at_coords(self.GAMESTATE.get_tower_coords(tower))
