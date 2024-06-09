@@ -38,7 +38,6 @@ class BaseAgent:
             target_f = np.expand_dims(target_f, axis=0)
             self.model.fit(state, target_f, epochs=1, verbose=0)
 
-
     def load(self, name):
         raise NotImplementedError
 
@@ -55,17 +54,13 @@ class DQNAgent(BaseAgent):
         self.exploration_decay = 0.995
         self.model = self._build_model()
 
-    def _build_model(self, use_previous_saved_weight=False): 
+    def _build_model(self): 
         model = models.Sequential()
         model.add(layers.Dense(128, activation='relu', input_dim=self.state_size))
         model.add(layers.Dense( 64, activation='relu'))
         model.add(layers.Dense(self.action_size))
         model.compile(loss='mse', 
                       optimizer=optimizers.Adam(learning_rate=self.learning_rate))
-        if os.path.isfile(self.weight_backup) and use_previous_saved_weight:
-            model.load_weights(self.weight_backup)
-            self.epsilon  = self.exploration_min
-        # model.summary()
         return model
 
     def save_model(self):
@@ -101,9 +96,13 @@ class DQNAgent(BaseAgent):
 
     def load(self, name):
         self.model.load_weights(name)
+        with open('epsilon_log.txt', 'r') as file:
+            self.epsilon = float(file.read())
 
     def save(self, name):
         self.model.save_weights(name)
+        with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'w') as file:
+            file.write(str(self.epsilon))
 
 
 class QLearningAgent(BaseAgent):

@@ -41,3 +41,9 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
             print(f"episode: {e+1}/{episodes}, score: {reward}, epsilon: {dqn_agent.epsilon}")
 
     dqn_agent.save_model()  
+
+
+if __name__ == "__main__":
+    # train_dqn_agent()
+    pass
+
