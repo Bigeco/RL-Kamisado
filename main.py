@@ -7,7 +7,7 @@ from gym_kamisado.agents.ai_agents import DQNAgent, SARSAAgent
 state_size = 8 * 8 + 1  # env.observation_space.shape[0]
 action_size = 22  # 
 dqn_agent = DQNAgent(state_size, action_size)
-#dqn_model = dqn_agent.load(name='gym_kamisado/agents/model/kamisado_DQN_weight.h5')
+dqn_agent.load(name='gym_kamisado/agents/model/kamisado_DQN_weight.h5')
 
 def sample_play():
     env = gym.make('Kamisado-v0', render_mode="human")
@@ -23,12 +23,17 @@ def sample_play():
 
 def play_dqn():
     env = gym.make('Kamisado-v0', render_mode="human")
-    truncated, terminated = False, False
+    done = False
     obs, info = env.reset()
 
-    while not truncated and not terminated:
-        action = dqn_model.predict(obs)
-        obs, reward, truncated, terminated, info = env.step(action)
+    while not done:
+        obs = np.reshape(obs, (1, len(obs)))
+        action = dqn_agent.act(obs)
+        tower = env.get_current_tower()  
+        target = action
+        next_state, reward, _, done, info = env.step(np.array([tower, target]))
+        dqn_agent.remember(obs, action, reward, next_state, done)
+        obs = next_state
         print("Reward: ", reward)
 
 if __name__ == "__main__":

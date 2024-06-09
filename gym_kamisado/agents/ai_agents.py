@@ -96,7 +96,7 @@ class DQNAgent(BaseAgent):
 
     def load(self, name):
         self.model.load_weights(name)
-        with open('epsilon_log.txt', 'r') as file:
+        with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'r') as file:
             self.epsilon = float(file.read())
 
     def save(self, name):
