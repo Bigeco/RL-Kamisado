@@ -105,5 +105,5 @@ def train_sarsa_agent(episodes=100):
 if __name__ == "__main__":
     # train_dqn_agent()
     train_sarsa_agent()
-    # pass
+    # train_qlearning_agent()
 
