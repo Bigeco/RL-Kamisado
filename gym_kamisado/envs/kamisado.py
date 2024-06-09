@@ -250,8 +250,8 @@ class GameState:
         """
         board = self.board
         coords = self.get_tower_coords(tower)
-        board[*coords] = 0
-        board[*coords + target] = tower
+        board[tuple(coords)] = 0
+        board[tuple(coords + target)] = tower
         self.board = board
 
 
