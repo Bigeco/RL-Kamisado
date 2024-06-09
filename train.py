@@ -44,6 +44,6 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
 
 
 if __name__ == "__main__":
-    # train_dqn_agent()
-    pass
+    train_dqn_agent()
+    # pass
 
