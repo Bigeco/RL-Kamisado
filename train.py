@@ -22,7 +22,7 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
         done = False
 
         while not done:
-            # tower - 1~8 값 가능 / target - 0~22 값 가능
+            # tower - 1~8 값 가능 / target - 0~21 값 가능
             state = np.reshape(state, (1, len(state)))
             action = dqn_agent.act(state)
 
@@ -39,4 +39,5 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
                 dqn_agent.replay(batch_size)
 
             print(f"episode: {e+1}/{episodes}, score: {reward}, epsilon: {dqn_agent.epsilon}")
-        
+
+    dqn_agent.save_model()  

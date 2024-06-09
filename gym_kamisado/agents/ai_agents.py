@@ -69,7 +69,7 @@ class DQNAgent(BaseAgent):
         return model
 
     def save_model(self):
-        self.model.save('gym_kamisado/model/' + self.weight_backup)
+        self.model.save('gym_kamisado/agents/model/' + self.weight_backup)
 
     def act(self, state):
         value_function = self.model.predict(state)
@@ -102,6 +102,7 @@ class DQNAgent(BaseAgent):
     def load(self, name):
         self.model.load_weights(name)
 
+    def save(self, name):
         self.model.save_weights(name)
 
 

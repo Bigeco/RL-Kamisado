@@ -206,7 +206,7 @@ class GameState:
                 첫 번째 인덱스 값은 tower이며
                 두 번째 인덱스 값은 target action 좌표이다.
                 tower - 1~8 값 가능
-                target - 0~22 값 가능
+                target - 0~21 값 가능
         
         Progress:
             이 메소드에서는 [3, 13] 을 입력으로 받으면
