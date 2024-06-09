@@ -139,10 +139,19 @@ class KamisadoEnv(gym.Env):
 
         return self._get_obs(), self._get_info()
 
-    def get_tower_coords(self, tower: int) -> np.ndarray:
-        """Get the coordinates of a tower."""
-        y, x = np.where(self.board == tower)
+    def get_tower_coords(self, tower):
+        if tower < 8:
+            y, x = np.where(self.board == -1)  # Player 0's towers
+        else:
+            y, x = np.where(self.board == -2)  # Player 1's towers
+
+        if len(y) == 0 or len(x) == 0:
+            # No tower found, return a default value
+            return np.array([0, 0], dtype=np.int64)
+
         return np.array([y[0], x[0]], dtype=np.int64)
+
+
 
     def tower_is_blocked(self, tower: int) -> bool:
         """Check if one tower is blocked and cannot move."""
@@ -170,7 +179,7 @@ class KamisadoEnv(gym.Env):
         # set indexes outside of board invalid
         mask = ((abs_actions >= 0) & (abs_actions <= 7)).all(1)
         # set indexes with tower on them invalid
-        mask[mask] = self.board[tuple(abs_actions[mask].T)] == 0
+        mask[mask] = self.board[tuple(abs_actions[mask].T)] != 0
         # set all indexes after invalid indexes also invalid
         paths = mask[1:].reshape(3, 7)
         mask = np.invert(np.invert(paths).cumsum(1, dtype=bool))
@@ -200,7 +209,11 @@ class KamisadoEnv(gym.Env):
 
         # check if tower can move to the provided target
         valid_actions = self.valid_targets(tower)
-        return (valid_actions == target).all(1).any(), tower, target
+
+        print("Action:", action)
+        print("Valid actions:", valid_actions)
+        print("Target:", target)
+        return (valid_actions == target).all().any(), tower, target
 
     def move_tower(self, tower: int, target: np.ndarray):
         board = self.board
@@ -227,21 +240,18 @@ class KamisadoEnv(gym.Env):
     def is_deadlocked(self) -> bool:
         """Check whether the game is deadlocked.
 
-        This function requires the `self.current_tower` to already be pointed
-        to the first tower that might be part of the deadlock.
+        This function checks if the current player has any valid moves left.
         """
-        if self.current_tower is None:
-            return False
-        pointer = self.current_tower
-        while self.tower_is_blocked(pointer):
-            pointer_coords = self.get_tower_coords(pointer)
-            color = self.color_at_coords(pointer_coords)
-            pointer = -color if pointer > 0 else color
+        # Check if any tower of the current player has valid moves
+        for tower in range(1, 9):
+            if len(self.possible_moves(tower)) > 0:
+                return False
 
-            # check if loop is complete
-            if pointer == self.current_tower:
-                return True
-        return False
+        # If no tower has valid moves, the game is deadlocked
+        return True
+
+
+
 
     def step(self, action: np.ndarray):
         valid, tower, target = self.parse_action(action)
