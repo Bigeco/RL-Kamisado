@@ -155,7 +155,10 @@ class SARSAAgent(BaseAgent):
         super().__init__(state_size, action_size)
         self.q_table = np.zeros((state_size, action_size))
         #self.q_table_file = "sarsa_q_table.npy"
-        self.weight_backup = "kamisado_SARSA_weight.h5"
+        self.weight_backup = "kamisado_SARSA_weight.npy"
+
+        if not os.path.isfile(self.weight_backup):
+            np.save(self.weight_backup, self.q_table)
 
     def select_action(self, state):
         if np.random.rand() <= self.epsilon:
@@ -171,9 +174,11 @@ class SARSAAgent(BaseAgent):
             self.epsilon *= self.epsilon_decay
             
     def load(self, name):
-        self.q_table = np.load(name)
-        with open('gym_kamisado/agents/model/sarsa_epsilon_log.txt', 'r') as file:
-            self.epsilon = float(file.read())
+        if os.path.isfile(name):
+            self.q_table = np.load(name)
+        
+            with open('gym_kamisado/agents/model/sarsa_epsilon_log.txt', 'r') as file:
+                self.epsilon = float(file.read())
 
     def save(self, name):
         np.save(name, self.q_table)
