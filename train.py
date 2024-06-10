@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 import gymnasium as gym
 import gym_kamisado
@@ -10,9 +11,12 @@ from gym_kamisado.agents.ai_agents import DQNAgent, QLearningAgent, SARSAAgent
 
 def print_cum_rewards_graph(cum_rewards):
     sns.lineplot(data=cum_rewards)
+    plt.plot(np.arange(len(cum_rewards)), cum_rewards, 'ro')
+    plt.show()
 
 def train_dqn_agent(params):
     cum_rewards = []
+    total_reward = 0
     episodes = params['episodes']
     batch_size = params['batch_size']
 
@@ -22,6 +26,7 @@ def train_dqn_agent(params):
     dqn_agent = DQNAgent(state_size, action_size)
 
     for e in range(episodes):
+        episode_reward = 0
         state, info = env.reset()
         done = False
 
@@ -43,9 +48,13 @@ def train_dqn_agent(params):
                 dqn_agent.replay(batch_size)
 
             print(f"episode: {e+1}/{episodes}, score: {reward}, epsilon: {dqn_agent.epsilon}")
-            cum_rewards.append(np.sum(cum_rewards) + reward)
-
+            episode_reward += reward
+            
+            
+        total_reward += episode_reward
+        cum_rewards.append(total_reward)
         dqn_agent.save_model()
+
     print_cum_rewards_graph(cum_rewards)
 
 
