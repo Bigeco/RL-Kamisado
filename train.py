@@ -1,16 +1,21 @@
 import random
+import numpy as np
+import seaborn as sns
 
 import gymnasium as gym
-import numpy as np
-
 import gym_kamisado
 from gym_kamisado.agents.ai_agents import DQNAgent, QLearningAgent, SARSAAgent
 
 # from collections import deque
 
+def print_cum_rewards_graph(cum_rewards):
+    sns.lineplot(data=cum_rewards)
 
+def train_dqn_agent(params):
+    cum_rewards = []
+    episodes = params['episodes']
+    batch_size = params['batch_size']
 
-def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_factor=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
     env = gym.make('Kamisado-v0', render_mode="rgb_array")
     state_size = 8 * 8 + 1  # env.observation_space.shape[0]
     action_size = 22  # 
@@ -38,8 +43,11 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
                 dqn_agent.replay(batch_size)
 
             print(f"episode: {e+1}/{episodes}, score: {reward}, epsilon: {dqn_agent.epsilon}")
+            cum_rewards.append(np.sum(cum_rewards) + reward)
 
         dqn_agent.save_model()
+    print_cum_rewards_graph(cum_rewards)
+
 
 def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, discount_factor=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
     env = gym.make('Kamisado-v0', render_mode="rgb_array")
@@ -71,6 +79,8 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
     env.close()
 
 def train_sarsa_agent(episodes=100):
+    cum_rewards = []
+
     env = gym.make('Kamisado-v0', render_mode='rgb_array')
     state_size = 8 * 8 + 1
     action_size = 22
@@ -97,12 +107,22 @@ def train_sarsa_agent(episodes=100):
             state, action = next_state, next_action
 
             print(f"episode: {e+1}/{episodes}, score: {reward}")
+            cum_rewards.append(np.sum(cum_rewards) + reward)
         
         sarsa_agent.save('gym_kamisado/agents/model/' + 'kamisado_sarsa_model.weights.npy')
         sarsa_agent.save_model('./gym_kamisado/agents/model/')
-
+    print_cum_rewards_graph(cum_rewards)
 
 if __name__ == "__main__":
-    train_dqn_agent(episodes=10)
+    CONFIG={
+        'episodes': 100,
+        'batch_size': 32,
+        'learning_rate': 0.01,
+        'discount_factor': 0.99,
+        'epsilon_start': 1.0,
+        'epsilon_min': 0.01,
+        'epsilon_decay': 0.995
+    }
+    train_dqn_agent(CONFIG)
     # train_qlearning_agent()
     # train_sarsa_agent()
