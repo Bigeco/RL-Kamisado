@@ -48,12 +48,15 @@ def train_dqn_agent(params):
                 dqn_agent.replay(batch_size)
 
             print(f"episode: {e+1}/{episodes}, score: {reward}, epsilon: {dqn_agent.epsilon}")
+
             episode_reward += reward
             
             
         total_reward += episode_reward
         cum_rewards.append(total_reward)
         dqn_agent.save_model()
+
+    dqn_agent.save_model('./gym_kamisado/agents/model/')
 
     print_cum_rewards_graph(cum_rewards)
 
@@ -89,6 +92,7 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
         print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
 
     env.close()
+    qlearning_agent.save_model('./gym_kamisado/agents/model/')
 
 def train_sarsa_agent(episodes=100):
     cum_rewards = []
@@ -122,7 +126,7 @@ def train_sarsa_agent(episodes=100):
             cum_rewards.append(np.sum(cum_rewards) + reward)
         
         sarsa_agent.save('gym_kamisado/agents/model/' + 'kamisado_sarsa_model.weights.npy')
-        sarsa_agent.save_model('./gym_kamisado/agents/model/')
+    sarsa_agent.save_model('./gym_kamisado/agents/model/')
     print_cum_rewards_graph(cum_rewards)
 
 if __name__ == "__main__":
@@ -138,3 +142,4 @@ if __name__ == "__main__":
     # train_dqn_agent(CONFIG)
     train_qlearning_agent()
     # train_sarsa_agent()
+
