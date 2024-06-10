@@ -82,7 +82,10 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
 
         # Decay epsilon
         qlearning_agent.epsilon = max(epsilon_min, qlearning_agent.epsilon * epsilon_decay)
-        
+
+        qlearning_agent.save('gym_kamisado/agents/model/kamisado_sarsa_model.weights.npy')
+        qlearning_agent.save_model('gym_kamisado/agents/model/')
+
         print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
 
     env.close()
@@ -132,6 +135,6 @@ if __name__ == "__main__":
         'epsilon_min': 0.01,
         'epsilon_decay': 0.995
     }
-    train_dqn_agent(CONFIG)
-    # train_qlearning_agent()
+    # train_dqn_agent(CONFIG)
+    train_qlearning_agent()
     # train_sarsa_agent()
