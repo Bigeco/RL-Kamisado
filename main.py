@@ -39,5 +39,6 @@ def play_dqn():
 if __name__ == "__main__":
     #play_dqn()
     #sample_play()
-    #train_qlearning_agent()
-    train_dqn_agent()
+    train_qlearning_agent()
+    
+    

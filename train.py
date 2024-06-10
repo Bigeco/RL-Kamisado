@@ -70,6 +70,9 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
         print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
 
     env.close()
+    # Save the Q-table as a Keras model
+    qlearning_agent.save_model('./gym_kamisado/agents/model/')
+    print("Save keras file!")
 
 def train_sarsa_agent(episodes=100):
     env = gym.make('Kamisado-v0', render_mode='rgb_array')
@@ -104,6 +107,6 @@ def train_sarsa_agent(episodes=100):
 
 if __name__ == "__main__":
     # train_dqn_agent()
-    train_sarsa_agent()
-    # train_qlearning_agent()
+    # train_sarsa_agent()
+    train_qlearning_agent()
 
