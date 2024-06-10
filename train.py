@@ -99,11 +99,11 @@ def train_sarsa_agent(episodes=100):
 
             print(f"episode: {e+1}/{episodes}, score: {reward}")
         
-    #sarsa_agent.save()
+        sarsa_agent.save("kamisado_sarsa_model.weights.h5")
 
 
 if __name__ == "__main__":
-    train_dqn_agent()
-    # train_sarsa_agent()
+    # train_dqn_agent()
+    train_sarsa_agent()
     # train_qlearning_agent()
 
