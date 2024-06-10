@@ -7,10 +7,7 @@ state_size = 8 * 8 + 1  # env.observation_space.shape[0]
 action_size = 22  # 
 
 dqn_agent = DQNAgent(state_size, action_size)
-dqn_agent.load(name='gym_kamisado/agents/model/kamisado_DQN_weight.h5')
-
-
-
+dqn_agent.load(name='gym_kamisado/agents/model/kamisado_DQN_weight.keras')
 
 
 def sample_play():
@@ -60,10 +57,8 @@ def play_sarsa():
         print("Reward: ", reward)
 
 if __name__ == "__main__":
-    #play_dqn()
-    play_sarsa()
+    play_dqn()
+    # play_sarsa()
     #sample_play()
     #train_qlearning_agent()
-    train_sarsa_agent()
-    
-    
+    # train_sarsa_agent()
