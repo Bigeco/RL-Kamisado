@@ -184,3 +184,21 @@ class SARSAAgent(BaseAgent):
         np.save(name, self.q_table)
         with open('gym_kamisado/agents/model/sarsa_epsilon_log.txt', 'a') as file:
             file.write(str(self.epsilon) + '\n')
+    
+    def save_model(self, path):
+        model = models.Sequential()
+        model.add(layers.Dense(128, input_dim=self.state_size, activation='relu'))
+        model.add(layers.Dense(64, activation='relu'))
+        model.add(layers.Dense(self.action_size, activation='linear'))
+        model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=self.learning_rate))
+
+        # Transfer Q-table values to the model weights
+        weights = model.get_weights()
+        for i in range(self.state_size):
+            for j in range(self.action_size):
+                weights[0][i][j] = self.q_table[i][j]
+        model.set_weights(weights)
+        
+        model.save(os.path.join(path, 'sarsa.keras'))
+
+    
