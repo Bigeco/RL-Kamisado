@@ -114,7 +114,10 @@ class QLearningAgent(BaseAgent):
         super().__init__(state_size, action_size)
         self.q_table = np.zeros((state_size, action_size))
         self.weight_backup = "kamisado_QL_weight.npy"
-        
+
+        if not os.path.isfile('gym_kamisado/agents/model/' + self.weight_backup):
+            np.save('gym_kamisado/agents/model/' + self.weight_backup, self.q_table)
+
     def select_action(self, state):
         return np.argmax(self.q_table[state])
 
@@ -124,11 +127,12 @@ class QLearningAgent(BaseAgent):
         self.q_table[state][action] += self.learning_rate * (target - self.q_table[state][action])
 
     def load(self, name):
-        self.q_table = np.load(name)
-        with open('gym_kamisado/agents/model/qlearning_epsilon_log.txt', 'r') as file:
-            lines = file.readlines()
-            last_line = lines[-1].strip()
-            self.epsilon = float(last_line)
+        if os.path.isfile(name):
+            self.q_table = np.load(name)
+            with open('gym_kamisado/agents/model/qlearning_epsilon_log.txt', 'r') as file:
+                lines = file.readlines()
+                last_line = lines[-1].strip()
+                self.epsilon = float(last_line)
 
     def save(self, name):
         np.save(name, self.q_table)

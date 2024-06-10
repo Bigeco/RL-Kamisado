@@ -1,7 +1,7 @@
 import gymnasium as gym
 import numpy as np
 
-from gym_kamisado.agents.ai_agents import DQNAgent, SARSAAgent
+from gym_kamisado.agents.ai_agents import DQNAgent, SARSAAgent, QLearningAgent
 from train import train_dqn_agent, train_qlearning_agent, train_sarsa_agent
 
 state_size = 8 * 8 + 1  # env.observation_space.shape[0]
@@ -39,6 +39,27 @@ def play_dqn():
         print("Reward: ", reward)
 
 
+def play_qlearning():
+    env = gym.make('Kamisado-v0', render_mode='human')
+    done = False
+    obs, info = env.reset()
+
+    qlearning_agent = QLearningAgent(state_size, action_size)
+    qlearning_agent.load('gym_kamisado/agents/model/kamisado_QL_weight.npy')
+
+
+    while not done:
+        obs = np.reshape(obs, (1, len(obs)))
+        action = qlearning_agent.select_action(obs)
+        tower = env.get_current_tower()
+        target = action
+
+        next_state, reward, _, done, info = env.step(np.array([tower, target]))
+        obs = next_state
+
+        print("Reward: ", reward)
+
+
 def play_sarsa():
     env = gym.make('Kamisado-v0', render_mode="human")
     done = False
@@ -59,9 +80,7 @@ def play_sarsa():
 
 if __name__ == "__main__":
     #play_dqn()
+    play_qlearning()
     #play_sarsa()
     #sample_play()
-    #train_qlearning_agent()
-    #train_sarsa_agent()
-    #train_dqn_agent()
     pass
