@@ -79,7 +79,7 @@ def train_sarsa_agent(episodes=100):
         
     for e in range(episodes):
         state, info = env.reset()
-        state = np.reshape(state, (1, -1))[0]
+        state = np.reshape(state, (1, len(state)))[0]
         action = sarsa_agent.select_action(state)
         done = False
 
