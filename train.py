@@ -15,7 +15,6 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
     state_size = 8 * 8 + 1  # env.observation_space.shape[0]
     action_size = 22  # 
     dqn_agent = DQNAgent(state_size, action_size)
-    episodes = 10
 
     for e in range(episodes):
         state, info = env.reset()
@@ -40,7 +39,7 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
 
             print(f"episode: {e+1}/{episodes}, score: {reward}, epsilon: {dqn_agent.epsilon}")
 
-        dqn_agent.save("kamisado_dqn_model.weights.h5")
+        dqn_agent.save_model()
 
 def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, discount_factor=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
     env = gym.make('Kamisado-v0', render_mode="rgb_array")
@@ -106,7 +105,7 @@ def train_sarsa_agent(episodes=100):
 
 
 if __name__ == "__main__":
-    # train_dqn_agent()
+    train_dqn_agent(episodes=20)
     # train_sarsa_agent()
-    train_qlearning_agent()
+    # train_qlearning_agent()
 
