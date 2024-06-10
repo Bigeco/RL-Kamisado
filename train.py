@@ -68,7 +68,7 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
         qlearning_agent.epsilon = max(epsilon_min, qlearning_agent.epsilon * epsilon_decay)
         
         print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
-
+        qlearning_agent.save("kamisado_qlearning_model.weights.h5")
     env.close()
     # Save the Q-table as a Keras model
     qlearning_agent.save_model('./gym_kamisado/agents/model/')
