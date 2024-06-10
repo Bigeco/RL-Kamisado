@@ -38,8 +38,8 @@ def train_dqn_agent(episodes=100, batch_size=32, learning_rate=0.01, discount_fa
                 dqn_agent.replay(batch_size)
 
             print(f"episode: {e+1}/{episodes}, score: {reward}, epsilon: {dqn_agent.epsilon}")
-
-        dqn_agent.save_model()
+            
+    dqn_agent.save_model('./gym_kamisado/agents/model/')
 
 def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, discount_factor=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
     env = gym.make('Kamisado-v0', render_mode="rgb_array")
@@ -69,6 +69,7 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
         print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
 
     env.close()
+    qlearning_agent.save_model('./gym_kamisado/agents/model/')
 
 def train_sarsa_agent(episodes=100):
     env = gym.make('Kamisado-v0', render_mode='rgb_array')
@@ -99,7 +100,7 @@ def train_sarsa_agent(episodes=100):
             print(f"episode: {e+1}/{episodes}, score: {reward}")
         
         sarsa_agent.save('gym_kamisado/agents/model/' + 'kamisado_sarsa_model.weights.npy')
-        sarsa_agent.save_model('./gym_kamisado/agents/model/')
+    sarsa_agent.save_model('./gym_kamisado/agents/model/')
 
 
 if __name__ == "__main__":

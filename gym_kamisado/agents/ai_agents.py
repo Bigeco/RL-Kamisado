@@ -63,8 +63,8 @@ class DQNAgent(BaseAgent):
                       optimizer=optimizers.Adam(learning_rate=self.learning_rate))
         return model
 
-    def save_model(self):
-        self.model.save('gym_kamisado/agents/model/' + self.weight_backup)
+    def save_model(self, path):
+        self.model.save(os.path.join(path, 'dqn.keras'))
         with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'a') as file:
             file.write(str(self.epsilon) + '\n')
 
@@ -196,7 +196,6 @@ class SARSAAgent(BaseAgent):
         model.add(layers.Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=self.learning_rate))
 
-        # Transfer Q-table values to the model weights
         weights = model.get_weights()
         for i in range(self.state_size):
             for j in range(self.action_size):
