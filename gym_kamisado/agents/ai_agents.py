@@ -65,6 +65,8 @@ class DQNAgent(BaseAgent):
 
     def save_model(self):
         self.model.save('gym_kamisado/agents/model/' + self.weight_backup)
+        with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'a') as file:
+            file.write(str(self.epsilon) + '\n')
 
     def act(self, state):
         value_function = self.model.predict(state)
@@ -95,16 +97,16 @@ class DQNAgent(BaseAgent):
             self.epsilon *= self.exploration_decay
 
     def load(self, name):
-        self.model.load_weights(name)
+        self.model = keras.models.load_model(name)
         with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'r') as file:
             lines = file.readlines()
             last_line = lines[-1].strip()
             self.epsilon = float(last_line)
 
-    def save(self, name):
-        self.model.save_weights(name)
-        with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'a') as file:
-            file.write(str(self.epsilon) + '\n')
+    # def save(self, name):
+    #     self.model.save_weights(name)
+    #     with open('gym_kamisado/agents/model/dqn_epsilon_log.txt', 'a') as file:
+    #         file.write(str(self.epsilon) + '\n')
 
 
 class QLearningAgent(BaseAgent):

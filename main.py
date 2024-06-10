@@ -59,6 +59,4 @@ def play_sarsa():
 if __name__ == "__main__":
     play_dqn()
     # play_sarsa()
-    #sample_play()
-    #train_qlearning_agent()
-    # train_sarsa_agent()
+    # sample_play()
