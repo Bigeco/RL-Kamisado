@@ -111,7 +111,8 @@ class QLearningAgent(BaseAgent):
     def __init__(self, state_size, action_size):
         super().__init__(state_size, action_size)
         self.q_table = np.zeros((state_size, action_size))
-
+        self.weight_backup = "kamisado_QL_weight.npy"
+        
     def select_action(self, state):
         return np.argmax(self.q_table[state])
 
@@ -122,9 +123,15 @@ class QLearningAgent(BaseAgent):
 
     def load(self, name):
         self.q_table = np.load(name)
+        with open('gym_kamisado/agents/model/qlearning_epsilon_log.txt', 'r') as file:
+            lines = file.readlines()
+            last_line = lines[-1].strip()
+            self.epsilon = float(last_line)
 
     def save(self, name):
         np.save(name, self.q_table)
+        with open('gym_kamisado/agents/model/qlearning_epsilon_log.txt', 'a') as file:
+            file.write(str(self.epsilon) + '\n')
     
     def save_model(self, path):
         model = models.Sequential()
@@ -148,7 +155,10 @@ class SARSAAgent(BaseAgent):
         super().__init__(state_size, action_size)
         self.q_table = np.zeros((state_size, action_size))
         #self.q_table_file = "sarsa_q_table.npy"
-        self.weight_backup = "kamisado_SARSA_weight.h5"
+        self.weight_backup = "kamisado_SARSA_weight.npy"
+
+        if not os.path.isfile(self.weight_backup):
+            np.save(self.weight_backup, self.q_table)
 
     def select_action(self, state):
         if np.random.rand() <= self.epsilon:
@@ -164,24 +174,13 @@ class SARSAAgent(BaseAgent):
             self.epsilon *= self.epsilon_decay
             
     def load(self, name):
-        self.q_table = np.load(name)
-        with open('gym_kamisado/agents/model/sarsa_epsilon_log.txt', 'r') as file:
-            self.epsilon = float(file.read())
+        if os.path.isfile(name):
+            self.q_table = np.load(name)
+        
+            with open('gym_kamisado/agents/model/sarsa_epsilon_log.txt', 'r') as file:
+                self.epsilon = float(file.read())
 
     def save(self, name):
         np.save(name, self.q_table)
         with open('gym_kamisado/agents/model/sarsa_epsilon_log.txt', 'a') as file:
             file.write(str(self.epsilon) + '\n')
-
-    #def load(self, name=None):
-    #    if name is None:
-    #        name = self.q_table_file
-    #    if os.path.isfile(name):
-    #        self.q_table = np.load(name)
-    #        print(f"Q-table loaded from {name}")
-
-    #def save(self, name=None):
-    #    if name is None:
-    #        name = self.q_table_file
-    #    np.save(name, self.q_table)
-    #    print(f"Q-table saved to {name}")

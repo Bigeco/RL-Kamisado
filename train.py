@@ -69,9 +69,6 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
         print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
 
     env.close()
-    # Save the Q-table as a Keras model
-    qlearning_agent.save_model('./gym_kamisado/agents/model/')
-    print("Save keras file!")
 
 def train_sarsa_agent(episodes=100):
     env = gym.make('Kamisado-v0', render_mode='rgb_array')
@@ -81,7 +78,7 @@ def train_sarsa_agent(episodes=100):
         
     for e in range(episodes):
         state, info = env.reset()
-        state = np.reshape(state, (1, -1))[0]
+        state = np.reshape(state, (1, len(state)))[0]
         action = sarsa_agent.select_action(state)
         done = False
 
@@ -101,7 +98,7 @@ def train_sarsa_agent(episodes=100):
 
             print(f"episode: {e+1}/{episodes}, score: {reward}")
         
-        sarsa_agent.save("kamisado_sarsa_model.weights.h5")
+        sarsa_agent.save('kamisado_sarsa_model.weights.npy')
 
 
 if __name__ == "__main__":
