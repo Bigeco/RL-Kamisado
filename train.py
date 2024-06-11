@@ -59,7 +59,7 @@ def train_dqn_agent(params):
         cum_rewards.append(total_reward)
         mean_cum_rewards.append(total_reward/(e+1))
         dqn_agent.save_model('./gym_kamisado/agents/model/')
-
+    env.close()
     print_cum_rewards_graph(mean_cum_rewards, "DQN")
 
 
@@ -155,6 +155,7 @@ def train_sarsa_agent(episodes=100, learning_rate=0.001, gamma=0.95, epsilon_dec
 
     sarsa_agent.save_model('./gym_kamisado/agents/model/')
     # print_cum_rewards_graph(mean_cum_rewards, "SARSA")
+    env.close()
     return mean_cum_rewards
 
 
