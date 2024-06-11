@@ -9,13 +9,15 @@ from gym_kamisado.agents.ai_agents import DQNAgent, QLearningAgent, SARSAAgent
 
 # from collections import deque
 
-def print_cum_rewards_graph(cum_rewards):
+def print_cum_rewards_graph(cum_rewards, agent_name):
+    plt.title(f'{agent_name}: Average cumulative sum of rewards')
     sns.lineplot(data=cum_rewards)
     plt.plot(np.arange(len(cum_rewards)), cum_rewards, 'ro')
     plt.show()
 
 def train_dqn_agent(params):
     cum_rewards = []
+    mean_cum_rewards = []
     total_reward = 0
     episodes = params['episodes']
     batch_size = params['batch_size']
@@ -54,23 +56,29 @@ def train_dqn_agent(params):
             
         total_reward += episode_reward
         cum_rewards.append(total_reward)
-        dqn_agent.save_model()
+        mean_cum_rewards.append(total_reward/(e+1))
+        dqn_agent.save_model('./gym_kamisado/agents/model/')
 
-    dqn_agent.save_model('./gym_kamisado/agents/model/')
-
-    print_cum_rewards_graph(cum_rewards)
+    print_cum_rewards_graph(mean_cum_rewards, "DQN")
 
 
-def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, discount_factor=0.99, epsilon_start=1.0, epsilon_min=0.01, epsilon_decay=0.995):
+def train_qlearning_agent(params):
+    cum_rewards = []
+    mean_cum_rewards = []
+    total_reward = 0
+    episodes = params['episodes']
+    epsilon_min = params['epsilon_min']
+    epsilon_decay = params['epsilon_decay']
+
     env = gym.make('Kamisado-v0', render_mode="rgb_array")
     state_size = 8 * 8 + 1
     action_size = 22
     qlearning_agent = QLearningAgent(state_size, action_size)
     
     for e in range(episodes):
+        episode_reward = 0
         state = env.reset()
         done = False
-        total_reward = 0
 
         while not done:
             state = state[0]  # Convert environment state to scalar value
@@ -81,7 +89,8 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
             next_state, reward, done, _, info = env.step(np.array([tower, target]))  # Pass tower and target as tuple
             qlearning_agent.learn(state, action, reward, next_state, done)
             state = next_state
-            total_reward += reward
+
+            episode_reward += reward
 
         # Decay epsilon
         qlearning_agent.epsilon = max(epsilon_min, qlearning_agent.epsilon * epsilon_decay)
@@ -91,11 +100,18 @@ def train_qlearning_agent(episodes=1000, batch_size=32, learning_rate=0.01, disc
 
         print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
 
+        total_reward += episode_reward
+        cum_rewards.append(total_reward)
+        mean_cum_rewards.append(total_reward/(e+1))
+
     env.close()
     qlearning_agent.save_model('./gym_kamisado/agents/model/')
+    print_cum_rewards_graph(mean_cum_rewards, "Q-Learning")
 
 def train_sarsa_agent(episodes=100):
     cum_rewards = []
+    mean_cum_rewards = []
+    total_reward = 0
 
     env = gym.make('Kamisado-v0', render_mode='rgb_array')
     state_size = 8 * 8 + 1
@@ -103,6 +119,7 @@ def train_sarsa_agent(episodes=100):
     sarsa_agent = SARSAAgent(state_size, action_size)
         
     for e in range(episodes):
+        episode_reward = 0
         state, info = env.reset()
         state = np.reshape(state, (1, len(state)))[0]
         action = sarsa_agent.select_action(state)
@@ -124,14 +141,20 @@ def train_sarsa_agent(episodes=100):
 
             print(f"episode: {e+1}/{episodes}, score: {reward}")
             cum_rewards.append(np.sum(cum_rewards) + reward)
-        
+
+            episode_reward += reward
+
+        total_reward += episode_reward
+        cum_rewards.append(total_reward)
+        mean_cum_rewards.append(total_reward/(e+1))
         sarsa_agent.save('gym_kamisado/agents/model/' + 'kamisado_sarsa_model.weights.npy')
+
     sarsa_agent.save_model('./gym_kamisado/agents/model/')
-    print_cum_rewards_graph(cum_rewards)
+    print_cum_rewards_graph(mean_cum_rewards, "SARSA")
 
 if __name__ == "__main__":
     CONFIG={
-        'episodes': 100,
+        'episodes': 60,
         'batch_size': 32,
         'learning_rate': 0.01,
         'discount_factor': 0.99,
@@ -139,7 +162,7 @@ if __name__ == "__main__":
         'epsilon_min': 0.01,
         'epsilon_decay': 0.995
     }
-    # train_dqn_agent(CONFIG)
-    train_qlearning_agent()
-    # train_sarsa_agent()
+    train_dqn_agent(CONFIG)
+    train_qlearning_agent(CONFIG)
+    train_sarsa_agent(60)
 
