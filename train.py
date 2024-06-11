@@ -1,9 +1,10 @@
 import random
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 import gymnasium as gym
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
 import gym_kamisado
 from gym_kamisado.agents.ai_agents import DQNAgent, QLearningAgent, SARSAAgent
 
@@ -88,10 +89,8 @@ def train_qlearning_agent(params):
             tower = env.get_current_tower()
             # target = action  # Use scalar value directly
 
-            next_state, reward, _, done, info = env.step(np.array([tower, action]))  # Pass tower and target as tuple
-            
-            next_action = qlearning_agent.select_action(next_state)
-            qlearning_agent.learn(list(state), action, reward, next_state, next_action)
+            next_state, reward, _, done, info = env.step(np.array([tower, action]))  # Pass tower and target as tuple 
+            qlearning_agent.learn(list(state), action, reward, next_state)
             state = next_state
 
             episode_reward += reward
@@ -236,7 +235,7 @@ if __name__ == "__main__":
     # train_dqn_agent(CONFIG)
     # train_qlearning_agent(CONFIG)
 
-    # grid_search_sarsa()
-    grid_search_QLearning()
+    grid_search_sarsa()
+    # grid_search_QLearning()
 
 

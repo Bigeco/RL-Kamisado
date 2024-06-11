@@ -1,7 +1,7 @@
 import gymnasium as gym
 import numpy as np
 
-from gym_kamisado.agents.ai_agents import DQNAgent, SARSAAgent, QLearningAgent
+from gym_kamisado.agents.ai_agents import DQNAgent, QLearningAgent, SARSAAgent
 from train import train_dqn_agent, train_qlearning_agent, train_sarsa_agent
 
 state_size = 8 * 8 + 1  # env.observation_space.shape[0]
