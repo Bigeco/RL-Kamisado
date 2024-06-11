@@ -67,13 +67,15 @@ def train_qlearning_agent(params):
     mean_cum_rewards = []
     total_reward = 0
     episodes = params['episodes']
-    epsilon_min = params['epsilon_min']
-    epsilon_decay = params['epsilon_decay']
+    gamma = params['gamma']
+    lr = params['learning_rate']
+    epsilon_min = 0.01
+    epsilon_decay = 0.995
 
     env = gym.make('Kamisado-v0', render_mode="rgb_array")
     state_size = 8 * 8 + 1
     action_size = 22
-    qlearning_agent = QLearningAgent(state_size, action_size)
+    qlearning_agent = QLearningAgent(state_size, action_size, gamma, lr)
     
     for e in range(episodes):
         episode_reward = 0
@@ -106,7 +108,7 @@ def train_qlearning_agent(params):
 
     env.close()
     qlearning_agent.save_model('./gym_kamisado/agents/model/')
-    print_cum_rewards_graph(mean_cum_rewards, "Q-Learning")
+    # print_cum_rewards_graph(mean_cum_rewards, "Q-Learning")
 
 def train_sarsa_agent(episodes=100, learning_rate=0.001, gamma=0.95, epsilon_decay=0.995):
     cum_rewards = []
@@ -154,23 +156,53 @@ def train_sarsa_agent(episodes=100, learning_rate=0.001, gamma=0.95, epsilon_dec
     return mean_cum_rewards
 
 
-def print_cum_rewards_graphs(lr, lst_gamma, lst_e_decay, lst_cum_rewards):
-    try:
-        lst_line = ['r--', 'bs', 'g^', 'ro']
-        plt.title(f'SARSA: Average cumulative sum of rewards')
-        # sns.lineplot(data=cum_rewards)
-        t = np.arange(len(lst_cum_rewards[0]))
-        i = 0
-        for g in lst_gamma:
-            for ed in lst_e_decay:
-                plt.plot(t, lst_cum_rewards[i], lst_line[i], label=f'lr={lr}, gamma={g}, e_decay={ed}')
-                i += 1
 
-        plt.legend(prop={'size': 6})
-        plt.show()
-    except:
-        return 
+def print_cum_rewards_graphs2(lr, lst_gamma, lst_e_decay, lst_cum_rewards, model):
+    if model == "SARSA":
+        try:
+            lst_line = ['r--', 'bs', 'g^', 'ro']
+            plt.title(f'SARSA: Average cumulative sum of rewards')
+            # sns.lineplot(data=cum_rewards)
+            t = np.arange(len(lst_cum_rewards[0]))
+            i = 0
+            for g in lst_gamma:
+                for ed in lst_e_decay:
+                    plt.plot(t, lst_cum_rewards[i], lst_line[i], label=f'lr={lr}, gamma={g}, e_decay={ed}')
+                    i += 1
 
+            plt.legend(prop={'size': 6})
+            plt.show()
+        except:
+            return
+        
+    if model == "QLearning":
+        try:
+            lst_line = ['r--', 'g^']
+            plt.title(f'Q-Learning: Average cumulative sum of rewards')
+            # sns.lineplot(data=cum_rewards)
+            t = np.arange(len(lst_cum_rewards[0]))
+            for i, g in enumerate(lst_gamma):
+                plt.plot(t, lst_cum_rewards[i], lst_line[i], label=f'lr={lr}, gamma={g}')
+            plt.legend(prop={'size': 6})
+            plt.show()
+        except:
+            return
+
+def grid_search_QLearning():
+    params = {
+        'learning_rate': [0.001, 0.01, 0.1, 0.3, 0.4, 0.5, 0.6, 0.7],
+        'gamma': [0.95, 0.9]
+    }
+    lst_mean_cum_rewards = []
+
+    for i, lr in enumerate(params['learning_rate']):
+        for g in params['gamma']:
+            new_params = {'episodes': 60,
+                          'learning_rate': lr,
+                          'gamma': g}
+            mean_cum_rewards = train_qlearning_agent(new_params)
+            lst_mean_cum_rewards.append(mean_cum_rewards)
+        print_cum_rewards_graphs2(lr, params['gamma'], None, lst_mean_cum_rewards[i*2:i*2+2], model='QLearning')
 
 def grid_search_sarsa():
     params = {
@@ -185,7 +217,7 @@ def grid_search_sarsa():
             for ed in params['epsilon_decay']:
                 mean_cum_rewards = train_sarsa_agent(60, lr, g, ed)
                 lst_mean_cum_rewards.append(mean_cum_rewards)
-        print_cum_rewards_graphs(lr, params['gamma'], params['epsilon_decay'], lst_mean_cum_rewards[i*4:i*4+4])
+        print_cum_rewards_graphs2(lr, params['gamma'], params['epsilon_decay'], lst_mean_cum_rewards[i*4:i*4+4], model="SARSA")
 
 if __name__ == "__main__":
     CONFIG={
@@ -195,10 +227,13 @@ if __name__ == "__main__":
         'discount_factor': 0.99,
         'epsilon_start': 1.0,
         'epsilon_min': 0.01,
-        'epsilon_decay': 0.995
+        'epsilon_decay': 0.995,
+        'gamma': 0.95
     }
     # train_dqn_agent(CONFIG)
     # train_qlearning_agent(CONFIG)
 
-    grid_search_sarsa()
+    # grid_search_sarsa()
+    grid_search_QLearning()
+
 
