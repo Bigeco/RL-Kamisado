@@ -60,14 +60,14 @@ def train_dqn_agent(params):
         mean_cum_rewards.append(total_reward/(e+1))
         dqn_agent.save_model('./gym_kamisado/agents/model/')
     env.close()
-    print_cum_rewards_graph(mean_cum_rewards, "DQN")
-
+    # print_cum_rewards_graph(mean_cum_rewards, "DQN")
+    return mean_cum_rewards
 
 def train_qlearning_agent(params):
     cum_rewards = []
-    mean_cum_rewards = []
-    total_reward = 0
-    episodes = params['episodes']
+    mean_cum_rewards = [] # ddd
+    total_reward = 0 # ddd
+    episodes = params['episodes'] # ddd
     gamma = params['gamma']
     lr = params['learning_rate']
     epsilon_min = 0.01
@@ -93,7 +93,7 @@ def train_qlearning_agent(params):
             qlearning_agent.learn(list(state), action, reward, next_state)
             state = next_state
 
-            episode_reward += reward
+            episode_reward += reward # ddd
             print(f"Episode: {e + 1}, Reward: {reward}, Epsilon: {qlearning_agent.epsilon}")
 
         # Decay epsilon
@@ -103,9 +103,9 @@ def train_qlearning_agent(params):
         qlearning_agent.save_model('gym_kamisado/agents/model/')
 
 
-        total_reward += episode_reward
-        cum_rewards.append(total_reward)
-        mean_cum_rewards.append(total_reward/(e+1))
+        total_reward += episode_reward # ddd
+        cum_rewards.append(total_reward) # ddd
+        mean_cum_rewards.append(total_reward/(e+1)) # ddd
 
     env.close()
     qlearning_agent.save_model('./gym_kamisado/agents/model/')
