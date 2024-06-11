@@ -157,11 +157,15 @@ class QLearningAgent(BaseAgent):
 
 
 class SARSAAgent(BaseAgent):
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, epsilon=1.0, learning_rate=0.001, gamma=0.95, epsilon_decay=0.995):
         super().__init__(state_size, action_size)
         self.q_table = np.zeros((state_size, action_size))
         #self.q_table_file = "sarsa_q_table.npy"
         self.weight_backup = "kamisado_SARSA_weight.npy"
+        self.epsilon = epsilon
+        self.learning_rate = learning_rate
+        self.gamma = gamma
+        self.epsilon_decay = epsilon_decay
 
         if not os.path.isfile('gym_kamisado/agents/model/' + self.weight_backup):
             np.save('gym_kamisado/agents/model/' + self.weight_backup, self.q_table)
