@@ -79,20 +79,23 @@ def train_qlearning_agent(params):
     
     for e in range(episodes):
         episode_reward = 0
-        state = env.reset()
+        state, info = env.reset()
         done = False
 
         while not done:
-            state = state[0]  # Convert environment state to scalar value
+            # state = state  # Convert environment state to scalar value
             action = qlearning_agent.select_action(state)
             tower = env.get_current_tower()
-            target = action  # Use scalar value directly
+            # target = action  # Use scalar value directly
 
-            next_state, reward, done, _, info = env.step(np.array([tower, target]))  # Pass tower and target as tuple
-            qlearning_agent.learn(state, action, reward, next_state, done)
+            next_state, reward, done, _, info = env.step(np.array([tower, action]))  # Pass tower and target as tuple
+            
+            next_action = qlearning_agent.select_action(next_state)
+            qlearning_agent.learn(list(state), action, reward, next_state, next_action)
             state = next_state
 
             episode_reward += reward
+            print(f"Episode: {e + 1}, Reward: {reward}, Epsilon: {qlearning_agent.epsilon}")
 
         # Decay epsilon
         qlearning_agent.epsilon = max(epsilon_min, qlearning_agent.epsilon * epsilon_decay)
@@ -100,7 +103,6 @@ def train_qlearning_agent(params):
         qlearning_agent.save('gym_kamisado/agents/model/kamisado_sarsa_model.weights.npy')
         qlearning_agent.save_model('gym_kamisado/agents/model/')
 
-        print(f"Episode: {e + 1}, Total Reward: {total_reward}, Epsilon: {qlearning_agent.epsilon}")
 
         total_reward += episode_reward
         cum_rewards.append(total_reward)
@@ -233,7 +235,7 @@ if __name__ == "__main__":
     # train_dqn_agent(CONFIG)
     # train_qlearning_agent(CONFIG)
 
-    # grid_search_sarsa()
-    grid_search_QLearning()
+    grid_search_sarsa()
+    # grid_search_QLearning()
 
 

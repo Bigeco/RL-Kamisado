@@ -121,12 +121,13 @@ class QLearningAgent(BaseAgent):
             np.save('gym_kamisado/agents/model/' + self.weight_backup, self.q_table)
 
     def select_action(self, state):
+        if np.random.rand() <= self.epsilon:
+            return np.random.choice(self.action_size)
         return np.argmax(self.q_table[state])
 
-    def learn(self, state, action, reward, next_state, done):
-        best_next_action = np.argmax(self.q_table[next_state])
-        target = reward + self.gamma * self.q_table[next_state][best_next_action] * (not done)
-        self.q_table[state][action] += self.learning_rate * (target - self.q_table[state][action])
+    def learn(self, state, action, reward, next_state, next_action):
+        next_q = self.q_table[next_state][next_action]
+        self.q_table[state][action] += self.learning_rate * (reward + self.gamma * next_q - self.q_table[state][action])
 
     def load(self, name):
         if os.path.isfile(name):
