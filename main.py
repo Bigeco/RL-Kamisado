@@ -23,6 +23,8 @@ def sample_play():
     print("Changed board: \n", info['board'])
     print("Done")
 
+    env.close()
+
 def play_dqn():
     env = gym.make('Kamisado-v0', render_mode="human")
     done = False
@@ -37,6 +39,8 @@ def play_dqn():
         dqn_agent.remember(obs, action, reward, next_state, done)
         obs = next_state
         print("Reward: ", reward)
+    
+    env.close()
 
 
 def play_qlearning():
@@ -58,6 +62,8 @@ def play_qlearning():
         obs = next_state
 
         print("Reward: ", reward)
+    
+    env.close()
 
 
 def play_sarsa():
@@ -77,10 +83,18 @@ def play_sarsa():
         sarsa_agent.remember(obs, action, reward, next_state, done)
         obs = next_state
         print("Reward: ", reward)
+    
+    env.close()
 
 if __name__ == "__main__":
-    #play_dqn()
-    play_qlearning()
-    #play_sarsa()
-    #sample_play()
+    agent_choice = input("Select agent to play ('dqn', 'qlearning', 'sarsa'): ").lower()
+    
+    if agent_choice == 'dqn':
+        play_dqn()
+    elif agent_choice == 'qlearning':
+        play_qlearning()
+    elif agent_choice == 'sarsa':
+        play_sarsa()
+    else:
+        print("Invalid choice. Please select 'dqn', 'qlearning', or 'sarsa'.")
     pass
