@@ -110,6 +110,7 @@ def train_qlearning_agent(params):
     env.close()
     qlearning_agent.save_model('./gym_kamisado/agents/model/')
     # print_cum_rewards_graph(mean_cum_rewards, "Q-Learning")
+    return mean_cum_rewards
 
 def train_sarsa_agent(episodes=100, learning_rate=0.001, gamma=0.95, epsilon_decay=0.995):
     cum_rewards = []
@@ -177,22 +178,22 @@ def print_cum_rewards_graphs2(lr, lst_gamma, lst_e_decay, lst_cum_rewards, model
             return
         
     if model == "QLearning":
-        try:
-            lst_line = ['r--', 'g^']
-            plt.title(f'Q-Learning: Average cumulative sum of rewards')
-            # sns.lineplot(data=cum_rewards)
-            t = np.arange(len(lst_cum_rewards[0]))
-            for i, g in enumerate(lst_gamma):
-                plt.plot(t, lst_cum_rewards[i], lst_line[i], label=f'lr={lr}, gamma={g}')
-            plt.legend(prop={'size': 6})
-            plt.show()
-        except:
-            return
+
+        lst_line = ['r--', 'bs', 'g^', 'ro']
+        plt.title(f'Q-Learning: Average cumulative sum of rewards')
+        # sns.lineplot(data=cum_rewards)
+        t = np.arange(len(lst_cum_rewards[0]))
+        for i, g in enumerate(lst_gamma):
+            plt.plot(t, lst_cum_rewards[i], lst_line[i], label=f'lr={lr}, gamma={g}')
+        plt.legend(prop={'size': 6})
+        plt.show()
+
+
 
 def grid_search_QLearning():
     params = {
         'learning_rate': [0.001, 0.01, 0.1, 0.3, 0.4, 0.5, 0.6, 0.7],
-        'gamma': [0.95, 0.9]
+        'gamma': [0.95, 0.9, 0.85, 0.8]
     }
     lst_mean_cum_rewards = []
 
@@ -203,7 +204,7 @@ def grid_search_QLearning():
                           'gamma': g}
             mean_cum_rewards = train_qlearning_agent(new_params)
             lst_mean_cum_rewards.append(mean_cum_rewards)
-        print_cum_rewards_graphs2(lr, params['gamma'], None, lst_mean_cum_rewards[i*2:i*2+2], model='QLearning')
+        print_cum_rewards_graphs2(lr, params['gamma'], None, lst_mean_cum_rewards[i*4:i*4+4], model='QLearning')
 
 def grid_search_sarsa():
     params = {
@@ -234,7 +235,7 @@ if __name__ == "__main__":
     # train_dqn_agent(CONFIG)
     # train_qlearning_agent(CONFIG)
 
-    grid_search_sarsa()
-    # grid_search_QLearning()
+    # grid_search_sarsa()
+    grid_search_QLearning()
 
 
