@@ -125,8 +125,8 @@ class QLearningAgent(BaseAgent):
             return np.random.choice(self.action_size)
         return np.argmax(self.q_table[state])
 
-    def learn(self, state, action, reward, next_state, next_action):
-        next_q = self.q_table[next_state][next_action]
+    def learn(self, state, action, reward, next_state):
+        next_q = np.max(self.q_table[next_state])
         self.q_table[state][action] += self.learning_rate * (reward + self.gamma * next_q - self.q_table[state][action])
 
     def load(self, name):
